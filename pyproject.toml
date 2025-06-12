@@ -10,3 +10,10 @@ lint.ignore = ["E501"]  # Optional: ignore long lines if Black handles them
 [tool.mypy]
 ignore_missing_imports = true
 
+[tool.coverage.run]
+branch = true
+source = ["scanner"]
+
+[tool.coverage.report]
+show_missing = true
+skip_covered = true

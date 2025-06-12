@@ -86,7 +86,16 @@ def extract_image_metadata(pdf_path, out):
                         if exif:
                             metadata.update(exif)
 
-                    if metadata:
+                    keys_to_ignore = {
+                        "jfif",
+                        "jfif_version",
+                        "jfif_unit",
+                        "jfif_density",
+                        "dpi",
+                        "adobe",
+                        "adobe_transform",
+                    }
+                    if metadata and any(key not in keys_to_ignore for key in metadata.keys()):
                         print(
                             f"[Image Metadata] {pdf_path} - Page {page_num + 1} - {name}", file=out
                         )

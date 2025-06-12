@@ -75,7 +75,7 @@ This project includes unit tests to ensure core functionality works correctly.
 Make sure you have `unittest` (comes with Python standard library) and the required dependencies installed:
 
 ```bash
-pip install pypdf pikepdf pillow
+pip install -r requirements-dev.txt
 ````
 
 To run the tests, execute:
