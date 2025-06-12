@@ -1,0 +1,116 @@
+import os
+import logging
+import argparse
+import io
+from PIL import Image
+from pypdf import PdfReader
+import pikepdf
+from xml.etree import ElementTree as ET
+
+def setup_logger(log_path):
+    logging.basicConfig(
+        filename=log_path,
+        filemode='w',
+        format='%(asctime)s - %(levelname)s - %(message)s',
+        level=logging.WARNING
+    )
+
+def extract_pdf_metadata(pdf_path, out):
+    try:
+        with pikepdf.open(pdf_path) as pdf:
+            docinfo = dict(pdf.docinfo)
+            if docinfo:
+                print(f"[PDF Metadata] {pdf_path}", file=out)
+                for key, value in docinfo.items():
+                    print(f"    {key}: {value}", file=out)
+            return pdf.open_metadata()
+    except Exception as e:
+        logging.warning(f"Could not extract PDF metadata from {pdf_path}: {e}")
+        return None
+
+def extract_xmp_rdf(xmp_metadata, pdf_path, out):
+    if not xmp_metadata:
+        return
+    try:
+        xml_str = str(xmp_metadata)
+        print(f"[XMP Metadata] {pdf_path}", file=out)
+        print(xml_str, file=out)
+
+        root = ET.fromstring(xml_str)
+        for rdf in root.findall('.//{http://www.w3.org/1999/02/22-rdf-syntax-ns#}RDF'):
+            print(f"[RDF Metadata] {pdf_path}", file=out)
+            print(ET.tostring(rdf, encoding='unicode'), file=out)
+    except Exception as e:
+        logging.warning(f"Failed to parse XMP/RDF in {pdf_path}: {e}")
+
+def extract_image_metadata(pdf_path, out):
+    try:
+        reader = PdfReader(pdf_path)
+        for page_num, page in enumerate(reader.pages):
+            xobjects = page.get("/Resources", {}).get("/XObject", None)
+            if not xobjects:
+                continue
+
+            try:
+                xobjects = xobjects.get_object()
+            except Exception:
+                continue
+
+            for name, obj_ref in xobjects.items():
+                try:
+                    obj = obj_ref.get_object()
+                    if obj.get("/Subtype") != "/Image":
+                        continue
+
+                    filters = obj.get("/Filter")
+                    if filters:
+                        if isinstance(filters, list):
+                            filters = [str(f) for f in filters]
+                        else:
+                            filters = [str(filters)]
+
+                        if any(f in ["/CCITTFaxDecode", "/JBIG2Decode"] for f in filters):
+                            continue
+
+                    data = obj.get_data()
+                    img = Image.open(io.BytesIO(data))
+
+                    metadata = img.info or {}
+                    if hasattr(img, "getexif"):
+                        exif = img.getexif()
+                        if exif:
+                            metadata.update(exif)
+
+                    if metadata:
+                        print(f"[Image Metadata] {pdf_path} - Page {page_num+1} - {name}", file=out)
+                        for key, val in metadata.items():
+                            print(f"    {key}: {val}", file=out)
+                except Exception as e:
+                    logging.warning(f"Error reading image {name} in {pdf_path}: {e}")
+    except Exception as e:
+        logging.warning(f"Could not scan images in {pdf_path}: {e}")
+
+def process_pdf(pdf_path, out):
+    logging.info(f"Processing: {pdf_path}")
+    xmp = extract_pdf_metadata(pdf_path, out)
+    extract_xmp_rdf(xmp, pdf_path, out)
+    extract_image_metadata(pdf_path, out)
+
+def scan_folder(folder, out):
+    for root, _, files in os.walk(folder):
+        for f in files:
+            if f.lower().endswith(".pdf"):
+                process_pdf(os.path.join(root, f), out)
+
+if __name__ == "__main__":
+    parser = argparse.ArgumentParser(description="Extract metadata from PDFs.")
+    parser.add_argument("folder", help="Folder to scan recursively")
+    parser.add_argument("--log", default="scanner.log", help="Log file path (warnings/errors)")
+    parser.add_argument("--out", default="pdf_metadata_output.txt", help="Output file for metadata")
+    args = parser.parse_args()
+
+    setup_logger(args.log)
+
+    with open(args.out, "w", encoding="utf-8") as metadata_out:
+        scan_folder(args.folder, metadata_out)
+
