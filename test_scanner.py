@@ -324,6 +324,74 @@ class TestScanner(unittest.TestCase):
                 scanner.scan_folder(tmp, out)
                 proc.assert_called_once_with(pdf_path, out)
 
+    @patch("scanner.PdfReader")
+    def test_extract_image_metadata_no_exif(self, mock_reader):
+        # Image with no EXIF or info metadata
+        img = Image.new("RGB", (10, 10))
+        bio = BytesIO()
+        img.save(bio, format="PNG")
+        bio.seek(0)
+        data = bio.getvalue()
+
+        image_obj = MagicMock()
+        image_obj.get.side_effect = lambda k, default=None: {
+            "/Subtype": "/Image",
+            "/Filter": None,
+        }.get(k, default)
+        image_obj.get_data.return_value = data
+
+        image_obj_ref = MagicMock()
+        image_obj_ref.get_object.return_value = image_obj
+
+        xobject_dict = {"NoMetaImg": image_obj_ref}
+        xobject_dict_obj = MagicMock()
+        xobject_dict_obj.get_object.return_value = xobject_dict
+
+        page = MagicMock()
+        page.get.side_effect = lambda k, default=None: {
+            "/Resources": {"/XObject": xobject_dict_obj}
+        }.get(k, default)
+
+        mock_reader.return_value.pages = [page]
+
+        out = StringIO()
+        scanner.extract_image_metadata("file.pdf", out)
+        self.assertNotIn("[Image Metadata]", out.getvalue())
+
+    @patch("scanner.PdfReader")
+    def test_extract_image_metadata_get_data_exception(self, mock_reader):
+        # Raise exception from get_data()
+        image_obj = MagicMock()
+        image_obj.get.side_effect = lambda k, default=None: {"/Subtype": "/Image"}.get(k, default)
+        image_obj.get_data.side_effect = Exception("fail reading data")
+
+        image_obj_ref = MagicMock()
+        image_obj_ref.get_object.return_value = image_obj
+
+        xobject_dict = {"BadDataImg": image_obj_ref}
+        xobject_dict_obj = MagicMock()
+        xobject_dict_obj.get_object.return_value = xobject_dict
+
+        page = MagicMock()
+        page.get.side_effect = lambda k, default=None: {
+            "/Resources": {"/XObject": xobject_dict_obj}
+        }.get(k, default)
+
+        mock_reader.return_value.pages = [page]
+
+        out = StringIO()
+        with self.assertLogs(level="WARNING") as cm:
+            scanner.extract_image_metadata("file.pdf", out)
+        logs = "\n".join(cm.output)
+        self.assertIn("Error reading image", logs)
+
+    def test_extract_xmp_rdf_missing_elements(self):
+        # Pass minimal/broken XMP metadata
+        broken_xmp = "<x:xmpmeta xmlns:x='adobe:ns:meta/'></x:xmpmeta>"
+        out = StringIO()
+        scanner.extract_xmp_rdf(broken_xmp, "file.pdf", out)
+        self.assertIn("[XMP Metadata]", out.getvalue())
+
 
 if __name__ == "__main__":
     unittest.main()
