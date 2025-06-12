@@ -18,7 +18,7 @@ A Python tool to recursively scan a folder for PDF files and extract:
 ## ✅ Requirements
 
 ```bash
-pip install pypdf pikepdf pillow
+pip install -r requirements.txt 
 ````
 
 ---
@@ -65,6 +65,35 @@ Metadata output (`--out`) includes:
 ```
 
 ---
+
+## 🧪 Unit Testing
+
+This project includes unit tests to ensure core functionality works correctly.
+
+### Running Tests
+
+Make sure you have `unittest` (comes with Python standard library) and the required dependencies installed:
+
+```bash
+pip install pypdf pikepdf pillow
+````
+
+To run the tests, execute:
+
+```bash
+python -m unittest test_scanner.py
+```
+
+### What is Tested?
+
+* Extraction of PDF metadata using mocked PDF files
+* Parsing of XMP and RDF metadata
+* Extraction of image metadata from embedded images (JPEG, PNG)
+* Proper handling of non-image PDF objects
+
+### Adding Tests
+
+Feel free to add more tests in `test_scanner.py` for new features or edge cases.
 
 ## 🔒 Notes
 
