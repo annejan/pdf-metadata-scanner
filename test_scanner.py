@@ -392,6 +392,48 @@ class TestScanner(unittest.TestCase):
         scanner.extract_xmp_rdf(broken_xmp, "file.pdf", out)
         self.assertIn("[XMP Metadata]", out.getvalue())
 
+    @patch("pikepdf.open")
+    def test_extract_pdf_metadata_with_metadata(self, mock_open):
+        # Covers lines 84-89 - normal metadata extraction path
+        mock_pdf = MagicMock()
+        mock_pdf.docinfo = {"/Title": "Test Title"}
+        mock_pdf.open_metadata.return_value = "<x:xmpmeta></x:xmpmeta>"
+        mock_open.return_value.__enter__.return_value = mock_pdf
+
+        out = StringIO()
+        xmp = scanner.extract_pdf_metadata("file.pdf", out)
+        output = out.getvalue()
+        self.assertIn("[PDF Metadata]", output)
+        self.assertIn("Test Title", output)
+        self.assertEqual(xmp, "<x:xmpmeta></x:xmpmeta>")
+
+    @patch("scanner.PdfReader")
+    def test_extract_image_metadata_invalid_xobject(self, mock_reader):
+        # Covers lines 125-134 - XObject dict with non-image or missing /Subtype
+        non_image_obj = MagicMock()
+        non_image_obj.get.side_effect = lambda k, default=None: {"/Subtype": "/Form"}.get(
+            k, default
+        )
+
+        image_obj_ref = MagicMock()
+        image_obj_ref.get_object.return_value = non_image_obj
+
+        xobject_dict = {"Obj1": image_obj_ref}
+        xobject_dict_obj = MagicMock()
+        xobject_dict_obj.get_object.return_value = xobject_dict
+
+        page = MagicMock()
+        page.get.side_effect = lambda k, default=None: {
+            "/Resources": {"/XObject": xobject_dict_obj}
+        }.get(k, default)
+
+        mock_reader.return_value.pages = [page]
+
+        out = StringIO()
+        scanner.extract_image_metadata("file.pdf", out)
+        # Expect no image metadata printed for non-image subtype
+        self.assertEqual(out.getvalue().strip(), "")
+
 
 if __name__ == "__main__":
     unittest.main()
