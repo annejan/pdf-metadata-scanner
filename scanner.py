@@ -2,19 +2,24 @@ import argparse
 import io
 import logging
 import os
+import sys
 from xml.etree import ElementTree as ET
 
 import pikepdf
 from PIL import Image
 from pypdf import PdfReader
+from tqdm import tqdm
 
 
-def setup_logger(log_path):
+def setup_logger(log_path, verbose=False):
+    handlers = [logging.FileHandler(log_path, mode="w", encoding="utf-8")]
+    if verbose:
+        handlers.append(logging.StreamHandler(sys.stdout))
+
     logging.basicConfig(
-        filename=log_path,
-        filemode="w",
         format="%(asctime)s - %(levelname)s - %(message)s",
-        level=logging.WARNING,
+        level=logging.INFO if verbose else logging.WARNING,
+        handlers=handlers,
     )
 
 
@@ -114,11 +119,16 @@ def process_pdf(pdf_path, out):
     extract_image_metadata(pdf_path, out)
 
 
-def scan_folder(folder, out):
+def scan_folder(folder, out, show_progress=False):
+    pdf_files = []
     for root, _, files in os.walk(folder):
         for f in files:
             if f.lower().endswith(".pdf"):
-                process_pdf(os.path.join(root, f), out)
+                pdf_files.append(os.path.join(root, f))
+
+    iterator = tqdm(pdf_files, desc="Scanning PDFs") if show_progress else pdf_files
+    for pdf_path in iterator:
+        process_pdf(pdf_path, out)
 
 
 if __name__ == "__main__":
@@ -126,9 +136,11 @@ if __name__ == "__main__":
     parser.add_argument("folder", help="Folder to scan recursively")
     parser.add_argument("--log", default="scanner.log", help="Log file path (warnings/errors)")
     parser.add_argument("--out", default="pdf_metadata_output.txt", help="Output file for metadata")
+    parser.add_argument("--verbose", action="store_true", help="Enable verbose logging to console")
+    parser.add_argument("--progress", action="store_true", help="Show progress while scanning PDFs")
     args = parser.parse_args()
 
-    setup_logger(args.log)
+    setup_logger(args.log, verbose=args.verbose)
 
     with open(args.out, "w", encoding="utf-8") as metadata_out:
-        scan_folder(args.folder, metadata_out)
+        scan_folder(args.folder, metadata_out, show_progress=args.progress)

@@ -5,3 +5,4 @@ pikepdf==9.8.1
 pillow==11.2.1
 pypdf==3.17.4
 wrapt==1.17.2
+tqdm==4.67.1

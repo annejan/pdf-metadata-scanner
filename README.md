@@ -26,16 +26,20 @@ pip install -r requirements.txt
 ## 🚀 Usage
 
 ```bash
-python scanner.py <folder> [--log LOG_FILE] [--out OUTPUT_FILE]
+python scanner.py <folder> [--log LOG_FILE] [--out OUTPUT_FILE] [--verbose] [--progress]
+
 ```
 
 ### Arguments:
 
-| Flag     | Description                         | Default                   |
-| -------- | ----------------------------------- | ------------------------- |
-| `folder` | Folder to recursively scan for PDFs | *required*                |
-| `--log`  | Log file for warnings/errors        | `scanner_warnings.log`    |
-| `--out`  | Output file for extracted metadata  | `pdf_metadata_output.txt` |
+| Flag         | Description                                  | Default                   |
+| ------------ | -------------------------------------------- | ------------------------- |
+| `folder`     | Folder to recursively scan for PDFs          | *required*                |
+| `--log`      | Log file for warnings/errors                 | `scanner_warnings.log`    |
+| `--out`      | Output file for extracted metadata           | `pdf_metadata_output.txt` |
+| `--verbose`  | Output logs to both file and console         |                           |
+| `--progress` | Show a live progress bar while scanning PDFs |                           |
+
 
 ---
 
