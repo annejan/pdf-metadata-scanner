@@ -1,19 +1,22 @@
-import os
-import logging
 import argparse
 import io
+import logging
+import os
+from xml.etree import ElementTree as ET
+
+import pikepdf
 from PIL import Image
 from pypdf import PdfReader
-import pikepdf
-from xml.etree import ElementTree as ET
+
 
 def setup_logger(log_path):
     logging.basicConfig(
         filename=log_path,
-        filemode='w',
-        format='%(asctime)s - %(levelname)s - %(message)s',
-        level=logging.WARNING
+        filemode="w",
+        format="%(asctime)s - %(levelname)s - %(message)s",
+        level=logging.WARNING,
     )
+
 
 def extract_pdf_metadata(pdf_path, out):
     try:
@@ -28,6 +31,7 @@ def extract_pdf_metadata(pdf_path, out):
         logging.warning(f"Could not extract PDF metadata from {pdf_path}: {e}")
         return None
 
+
 def extract_xmp_rdf(xmp_metadata, pdf_path, out):
     if not xmp_metadata:
         return
@@ -37,11 +41,12 @@ def extract_xmp_rdf(xmp_metadata, pdf_path, out):
         print(xml_str, file=out)
 
         root = ET.fromstring(xml_str)
-        for rdf in root.findall('.//{http://www.w3.org/1999/02/22-rdf-syntax-ns#}RDF'):
+        for rdf in root.findall(".//{http://www.w3.org/1999/02/22-rdf-syntax-ns#}RDF"):
             print(f"[RDF Metadata] {pdf_path}", file=out)
-            print(ET.tostring(rdf, encoding='unicode'), file=out)
+            print(ET.tostring(rdf, encoding="unicode"), file=out)
     except Exception as e:
         logging.warning(f"Failed to parse XMP/RDF in {pdf_path}: {e}")
+
 
 def extract_image_metadata(pdf_path, out):
     try:
@@ -82,7 +87,9 @@ def extract_image_metadata(pdf_path, out):
                             metadata.update(exif)
 
                     if metadata:
-                        print(f"[Image Metadata] {pdf_path} - Page {page_num+1} - {name}", file=out)
+                        print(
+                            f"[Image Metadata] {pdf_path} - Page {page_num + 1} - {name}", file=out
+                        )
                         for key, val in metadata.items():
                             print(f"    {key}: {val}", file=out)
                 except Exception as e:
@@ -90,17 +97,20 @@ def extract_image_metadata(pdf_path, out):
     except Exception as e:
         logging.warning(f"Could not scan images in {pdf_path}: {e}")
 
+
 def process_pdf(pdf_path, out):
     logging.info(f"Processing: {pdf_path}")
     xmp = extract_pdf_metadata(pdf_path, out)
     extract_xmp_rdf(xmp, pdf_path, out)
     extract_image_metadata(pdf_path, out)
 
+
 def scan_folder(folder, out):
     for root, _, files in os.walk(folder):
         for f in files:
             if f.lower().endswith(".pdf"):
                 process_pdf(os.path.join(root, f), out)
+
 
 if __name__ == "__main__":
     parser = argparse.ArgumentParser(description="Extract metadata from PDFs.")
@@ -113,4 +123,3 @@ if __name__ == "__main__":
 
     with open(args.out, "w", encoding="utf-8") as metadata_out:
         scan_folder(args.folder, metadata_out)
-

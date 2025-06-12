@@ -1,0 +1,12 @@
+[tool.black]
+line-length = 100
+target-version = ["py311"]
+
+[tool.ruff]
+line-length = 100
+lint.select = ["E", "F", "I", "B"]  # E=pycodestyle, F=pyflakes, I=isort, B=bugbear
+lint.ignore = ["E501"]  # Optional: ignore long lines if Black handles them
+
+[tool.mypy]
+ignore_missing_imports = true
+

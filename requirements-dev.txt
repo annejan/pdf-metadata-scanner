@@ -1,0 +1,16 @@
+black==25.1.0
+click==8.2.1
+coverage==7.9.0
+Deprecated==1.2.18
+lxml==5.4.0
+mypy==1.16.0
+mypy_extensions==1.1.0
+packaging==25.0
+pathspec==0.12.1
+pikepdf==9.8.1
+pillow==11.2.1
+platformdirs==4.3.8
+pypdf==3.17.4
+ruff==0.11.13
+typing_extensions==4.14.0
+wrapt==1.17.2

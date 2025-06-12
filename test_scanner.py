@@ -1,11 +1,13 @@
 import unittest
-from unittest.mock import MagicMock, patch, mock_open
-from io import StringIO, BytesIO
-from PIL import Image
+from io import BytesIO, StringIO
+from unittest.mock import MagicMock, patch
+
+from PIL import Image, PngImagePlugin
+
 import scanner
 
-class TestScanner(unittest.TestCase):
 
+class TestScanner(unittest.TestCase):
     @patch("pikepdf.open")
     def test_extract_pdf_metadata(self, mock_pikepdf_open):
         mock_pdf = MagicMock()
@@ -34,65 +36,128 @@ class TestScanner(unittest.TestCase):
 
     @patch("scanner.PdfReader")
     def test_extract_image_metadata_jpeg(self, mock_reader):
-        # Create a simple in-memory JPEG image
         img = Image.new("RGB", (10, 10), color="red")
         bio = BytesIO()
         img.save(bio, format="JPEG")
         bio.seek(0)
         image_data = bio.getvalue()
 
-        # Mock the image object in the PDF
         image_obj = MagicMock()
         image_obj.get.side_effect = lambda k, default=None: {
             "/Subtype": "/Image",
-            "/Filter": "/DCTDecode"
+            "/Filter": "/DCTDecode",
         }.get(k, default)
         image_obj.get_data.return_value = image_data
 
-        # Mock the indirect object reference for the image
         image_obj_ref = MagicMock()
         image_obj_ref.get_object.return_value = image_obj
 
-        # Mock the XObject dictionary that contains one image named 'Im1'
         xobject_dict = {"Im1": image_obj_ref}
         xobject_dict_obj = MagicMock()
         xobject_dict_obj.get_object.return_value = xobject_dict
 
-        # Mock the page resources dict with XObject key
         page = MagicMock()
         page.get.side_effect = lambda k, default=None: {
-            "/Resources": {
-                "/XObject": xobject_dict_obj
-            }
+            "/Resources": {"/XObject": xobject_dict_obj}
         }.get(k, default)
 
-        # Mock PdfReader.pages as a list with our mocked page
         mock_reader.return_value.pages = [page]
 
-        # Prepare StringIO to capture metadata output
+        out = StringIO()
+        scanner.extract_image_metadata("file.pdf", out)
+        self.assertIn("[Image Metadata]", out.getvalue())
+
+    @patch("scanner.PdfReader")
+    def test_extract_image_metadata_png(self, mock_reader):
+        img = Image.new("RGB", (10, 10), color="blue")
+        bio = BytesIO()
+        meta = PngImagePlugin.PngInfo()
+        meta.add_text("Description", "Test PNG")
+        img.save(bio, format="PNG", pnginfo=meta)
+        bio.seek(0)
+        image_data = bio.getvalue()
+
+        image_obj = MagicMock()
+        image_obj.get.side_effect = lambda k, default=None: {
+            "/Subtype": "/Image",
+            "/Filter": "/FlateDecode",
+        }.get(k, default)
+        image_obj.get_data.return_value = image_data
+
+        image_obj_ref = MagicMock()
+        image_obj_ref.get_object.return_value = image_obj
+
+        xobject_dict = {"Im2": image_obj_ref}
+        xobject_dict_obj = MagicMock()
+        xobject_dict_obj.get_object.return_value = xobject_dict
+
+        page = MagicMock()
+        page.get.side_effect = lambda k, default=None: {
+            "/Resources": {"/XObject": xobject_dict_obj}
+        }.get(k, default)
+
+        mock_reader.return_value.pages = [page]
+
         out = StringIO()
         scanner.extract_image_metadata("file.pdf", out)
 
-        output = out.getvalue()
-        self.assertIn("[Image Metadata]", output)
+        self.assertIn("[Image Metadata]", out.getvalue())
+
+    @patch("scanner.PdfReader")
+    def test_invalid_image_data_logs_warning(self, mock_reader):
+        image_obj = MagicMock()
+        image_obj.get.side_effect = lambda k, default=None: {
+            "/Subtype": "/Image",
+            "/Filter": "/DCTDecode",
+        }.get(k, default)
+        image_obj.get_data.return_value = b"notarealimage"
+
+        image_obj_ref = MagicMock()
+        image_obj_ref.get_object.return_value = image_obj
+
+        xobject_dict = {"Im3": image_obj_ref}
+        xobject_dict_obj = MagicMock()
+        xobject_dict_obj.get_object.return_value = xobject_dict
+
+        page = MagicMock()
+        page.get.side_effect = lambda k, default=None: {
+            "/Resources": {"/XObject": xobject_dict_obj}
+        }.get(k, default)
+
+        mock_reader.return_value.pages = [page]
+
+        out = StringIO()
+        with self.assertLogs(level="WARNING") as cm:
+            scanner.extract_image_metadata("file.pdf", out)
+
+        logs = "\n".join(cm.output)
+        self.assertIn("Error reading image", logs)
 
     @patch("scanner.PdfReader")
     def test_skip_non_image(self, mock_reader):
         non_image_obj = MagicMock()
-        non_image_obj.get.side_effect = lambda k, default=None: {
-            "/Subtype": "/Form"
-        }.get(k, default)
+        non_image_obj.get.side_effect = lambda k, default=None: {"/Subtype": "/Form"}.get(
+            k, default
+        )
 
         page = MagicMock()
-        page.get.return_value.get_object.return_value = {"Obj": MagicMock(get_object=lambda: non_image_obj)}
+        page.get.return_value.get_object.return_value = {
+            "Obj": MagicMock(get_object=lambda: non_image_obj)
+        }
 
         mock_reader.return_value.pages = [page]
 
         out = StringIO()
         scanner.extract_image_metadata("file.pdf", out)
+        self.assertEqual(out.getvalue().strip(), "")
 
-        self.assertEqual(out.getvalue().strip(), "")  # should produce no output
+    @patch("scanner.PdfReader")
+    def test_pdf_with_no_pages(self, mock_reader):
+        mock_reader.return_value.pages = []
+        out = StringIO()
+        scanner.extract_image_metadata("empty.pdf", out)
+        self.assertEqual(out.getvalue().strip(), "")
+
 
 if __name__ == "__main__":
     unittest.main()
-
