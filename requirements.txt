@@ -1,6 +1,4 @@
-Deprecated==1.2.18
 lxml==5.4.0
-packaging==25.0
 pikepdf==9.8.1
 pillow==11.2.1
 pypdf==3.17.4

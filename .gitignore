@@ -160,5 +160,4 @@ cython_debug/
 #  option (not recommended) you can uncomment the following to ignore the entire idea folder.
 #.idea/
 
-tesseract_opencl_profile_devices.dat
-data/
+pdf_metadata_output.txt

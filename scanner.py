@@ -131,7 +131,7 @@ def scan_folder(folder, out, show_progress=False):
         process_pdf(pdf_path, out)
 
 
-if __name__ == "__main__":
+def main():
     parser = argparse.ArgumentParser(description="Extract metadata from PDFs.")
     parser.add_argument("folder", help="Folder to scan recursively")
     parser.add_argument("--log", default="scanner.log", help="Log file path (warnings/errors)")
@@ -144,3 +144,7 @@ if __name__ == "__main__":
 
     with open(args.out, "w", encoding="utf-8") as metadata_out:
         scan_folder(args.folder, metadata_out, show_progress=args.progress)
+
+
+if __name__ == "__main__":
+    main()
