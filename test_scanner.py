@@ -303,7 +303,6 @@ class TestScanner(unittest.TestCase):
             patch("scanner.extract_xmp_rdf") as xmp,
             patch("scanner.extract_image_metadata") as img,
         ):
-
             out = StringIO()
             scanner.process_pdf("mock.pdf", out)
             meta.assert_called_once()

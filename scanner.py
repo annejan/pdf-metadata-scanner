@@ -134,10 +134,18 @@ def scan_folder(folder, out, show_progress=False):
 def main():
     parser = argparse.ArgumentParser(description="Extract metadata from PDFs.")
     parser.add_argument("folder", help="folder to scan recursively")
-    parser.add_argument("-l", "--log", default="scanner.log", help="log file path (warnings/errors)")
-    parser.add_argument("-o", "--out", default="pdf_metadata_output.txt", help="output file for metadata")
-    parser.add_argument("-v", "--verbose", action="store_true", help="output logs to both file and console")
-    parser.add_argument("-p", "--progress", action="store_true", help="show a live progress bar while scanning PDFs")
+    parser.add_argument(
+        "-l", "--log", default="scanner.log", help="log file path (warnings/errors)"
+    )
+    parser.add_argument(
+        "-o", "--out", default="pdf_metadata_output.txt", help="output file for metadata"
+    )
+    parser.add_argument(
+        "-v", "--verbose", action="store_true", help="output logs to both file and console"
+    )
+    parser.add_argument(
+        "-p", "--progress", action="store_true", help="show a live progress bar while scanning PDFs"
+    )
     args = parser.parse_args()
 
     setup_logger(args.log, verbose=args.verbose)
