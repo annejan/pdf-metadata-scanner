@@ -1,6 +1,6 @@
 [project]
 name = "pdf-metadata-scanner"
-version = "0.1.1"
+version = "0.1.2"
 description = "A CLI tool for extracting and analyzing metadata from PDFs, including embedded images and XMP/RDF metadata."
 readme = "README.md"
 requires-python = ">=3.11"
@@ -11,8 +11,10 @@ authors = [
 dependencies = [
   "pikepdf",
   "pypdf",
-  "Pillow"
+  "Pillow",
+  'tqdm'
 ]
+keywords = ["PDF", "metadata", "scanner", "EXIF", "XMP"]
 
 [project.scripts]
 pdfscan = "scanner:main"

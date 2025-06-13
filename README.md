@@ -1,59 +1,71 @@
 # PDF Metadata Scanner
 
-A Python tool to recursively scan a folder for PDF files and extract:
+A command-line tool to recursively scan folders for PDF files and extract:
 
 - PDF metadata (Info dictionary via `pikepdf`)
 - XMP and RDF metadata
-- Metadata from embedded images (JPEG, PNG, TIFF — EXIF, text, and other supported fields)
-
-### 🛠 Features
-
-- Recursive folder scanning
-- Clean separation of logs (warnings/errors) and metadata output
-- Supports multiple image formats (via Pillow)
-- Handles XMP/RDF and embedded image metadata
+- Embedded image metadata (JPEG, PNG, TIFF — EXIF, text, and other supported fields)
 
 ---
 
-## ✅ Requirements
+## 🛠 Features
+
+- 🔍 Recursive folder scanning
+- 🧼 Clean separation of metadata output and error/warning logs
+- 🖼 Embedded image metadata support via Pillow (JPEG, PNG, TIFF)
+- 📑 XMP/RDF metadata parsing
+- ⚙️ Optional progress bar and verbose logging
+
+---
+
+## 📦 Installation
+
+Install directly from PyPI:
 
 ```bash
-pip install -r requirements.txt 
+pip install pdf-metadata-scanner
 ````
+
+Or from source:
+
+```bash
+git clone https://github.com/yourname/pdf-metadata-scanner.git
+cd pdf-metadata-scanner
+pip install .
+```
 
 ---
 
 ## 🚀 Usage
 
+After installing:
+
+```bash
+pdfscan <folder> [--log LOG_FILE] [--out OUTPUT_FILE] [--verbose] [--progress]
+```
+
+If running from source without installation:
+
 ```bash
 python scanner.py <folder> [--log LOG_FILE] [--out OUTPUT_FILE] [--verbose] [--progress]
 ```
 
-Or if you want to install:
-
-```bash
-pip install .
-pdfscan <folder> [--log LOG_FILE] [--out OUTPUT_FILE] [--verbose] [--progress]
-
-```
-
 ### Arguments:
 
-| Flag         | Description                                  | Default                   |
-| ------------ | -------------------------------------------- | ------------------------- |
-| `folder`     | Folder to recursively scan for PDFs          | *required*                |
-| `--log`      | Log file for warnings/errors                 | `scanner_warnings.log`    |
-| `--out`      | Output file for extracted metadata           | `pdf_metadata_output.txt` |
-| `--verbose`  | Output logs to both file and console         |                           |
-| `--progress` | Show a live progress bar while scanning PDFs |                           |
-
+| Flag                | Shorthand | Description                                  | Default                   |
+| ------------------- | --------- | -------------------------------------------- | ------------------------- |
+| `folder`            |           | Folder to recursively scan for PDFs          | *required*                |
+| `--log LOG_FILE`    | `-l`      | Log file for warnings/errors                 | `scanner_warnings.log`    |
+| `--out OUTPUT_FILE` | `-o`      | Output file for extracted metadata           | `pdf_metadata_output.txt` |
+| `--verbose`         | `-v`      | Output logs to both file and console         | *(off)*                   |
+| `--progress`        | `-p`      | Show a live progress bar while scanning PDFs | *(off)*                   |
 
 ---
 
 ## 🧾 Example
 
 ```bash
-python scanner.py ./documents --log logs.txt --out metadata.txt
+pdfscan ./documents --log logs.txt --out metadata.txt --verbose --progress
 ```
 
 * `logs.txt`: Contains only errors or warnings.
@@ -61,59 +73,46 @@ python scanner.py ./documents --log logs.txt --out metadata.txt
 
 ---
 
-## 📦 Output Structure
-
-Metadata output (`--out`) includes:
+## 📄 Output Format
 
 ```
-[PDF Metadata] ...
-    /Author: John Doe
-    /Title: Sample
-[XMP Metadata] ...
-[Image Metadata] ...
-    306: 2023:12:31 12:34:56
-    dpi: (300, 300)
+[PDF Metadata] test.pdf
+    /Author: Jane Doe
+    /Title: Example Document
+
+[XMP Metadata] test.pdf
+    <dc:title>Example</dc:title>
+    <dc:creator>Jane Doe</dc:creator>
+
+[Image Metadata] test.pdf - Page 1 - Im0
+    DateTimeOriginal: 2024:01:01 12:00:00
+    DPI: (300, 300)
 ```
 
 ---
 
-## 🧪 Unit Testing
+## 🧪 Testing
 
-This project includes unit tests to ensure core functionality works correctly.
+This project includes unit tests for core functionality.
 
-### Running Tests
-
-Make sure you have `unittest` (comes with Python standard library) and the required dependencies installed:
+### Run tests:
 
 ```bash
 pip install -r requirements-dev.txt
-````
-
-To run the tests, execute:
-
-```bash
 python -m unittest test_scanner.py
 ```
 
-### What is Tested?
-
-* Extraction of PDF metadata using mocked PDF files
-* Parsing of XMP and RDF metadata
-* Extraction of image metadata from embedded images (JPEG, PNG)
-* Proper handling of non-image PDF objects
-
-### Adding Tests
-
-Feel free to add more tests in `test_scanner.py` for new features or edge cases.
+---
 
 ## 🔒 Notes
 
-* Some image formats in PDFs (e.g. CCITT, JBIG2) are skipped due to incompatibility.
-* PNG metadata (text fields) and EXIF from JPEG/TIFF are both supported.
-* This tool does not modify the PDFs — it only reads metadata.
+* Some image formats (e.g. CCITT, JBIG2) are skipped due to decoding limitations.
+* PNG and JPEG/TIFF metadata is extracted where available.
+* The tool is read-only — it does **not** modify PDFs.
 
 ---
 
-## 📃 License
+## 🧾 License
 
 MIT License
+
