@@ -27,6 +27,13 @@ pip install -r requirements.txt
 
 ```bash
 python scanner.py <folder> [--log LOG_FILE] [--out OUTPUT_FILE] [--verbose] [--progress]
+```
+
+Or if you want to install:
+
+```bash
+pip install .
+pdfscan <folder> [--log LOG_FILE] [--out OUTPUT_FILE] [--verbose] [--progress]
 
 ```
 

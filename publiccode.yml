@@ -1,0 +1,99 @@
+publiccodeYmlVersion: '0.4.0'
+
+name: PDF Metadata Scanner
+applicationSuite: ''
+url: 'https://github.com/annejan/pdf-metadata-scanner'
+landingURL: 'https://github.com/annejan/pdf-metadata-scanner'
+softwareVersion: '0.1.1'
+releaseDate: '2025-06-13'
+
+developmentStatus: development
+
+platforms:
+  - linux
+  - macos
+  - windows
+
+categories:
+  - data-processing
+  - document-management
+  - privacy
+
+intendedAudience:
+  - public-administrations
+  - developers
+  - security-officers
+  - archivists
+
+description:
+  en:
+    localisedName: PDF Metadata Scanner
+    shortDescription: >
+      A command-line tool to audit PDF files for hidden metadata such as XMP, RDF, and EXIF from embedded images.
+    longDescription: >
+      PDF Metadata Scanner is a Python-based utility that recursively scans directories for PDF files and extracts all known metadata layers.
+      This includes standard PDF fields, XMP packets, RDF triples, and EXIF tags in embedded image streams. It aids in document inspection, archival preparation, and privacy enforcement.
+    features:
+      - Recursive folder scanning
+      - CLI with verbosity and progress options
+      - Extraction of XMP, RDF, and EXIF metadata
+      - Suitable for privacy audits and pre-publication sanitization
+
+legal:
+  license: MIT
+  authors:
+    - name: Anne Jan Brouwer
+      email: 'brouwer@annejan.com'
+      affiliation: 'Independent developer'
+      website: 'https://github.com/annejan'
+
+maintenance:
+  type: internal
+  contacts:
+    - name: Anne Jan Brouwer
+      email: 'brouwer@annejan.com'
+      affiliation: 'Independent developer'
+      website: 'https://github.com/annejan'
+      role: developer
+
+localisation:
+  availableLanguages:
+    - en
+  localisationReady: false
+  translationStatus:
+    en: 100
+
+dependsOn:
+  open:
+    - name: Python
+      versionMin: '3.11'
+    - name: pypdf
+    - name: Pillow
+    - name: pikepdf
+    - name: tqdm
+
+usedBy: []
+
+documentation:
+  readme: 'https://github.com/annejan/pdf-metadata-scanner/blob/main/README.md'
+  apiDocumentation: ''
+  technicalDocumentation: ''
+
+download:
+  repo: 'https://github.com/annejan/pdf-metadata-scanner'
+  release: 'https://github.com/annejan/pdf-metadata-scanner/releases'
+  package: 'https://pypi.org/project/pdf-metadata-scanner'
+
+compliance:
+  - standard: GDPR
+    description: >
+      Helps comply with GDPR principles of data minimization and transparency by detecting hidden metadata in documents.
+
+internationalisation:
+  policy: open
+  communityTranslation: true
+
+deployment:
+  reusable: true
+  configurationRequired: minimal
+
