@@ -15,16 +15,24 @@ platforms:
   - windows
 
 categories:
-  - data-processing
+  - business-process-management
+  - content-management
   - document-management
-  - privacy
+  - data-analytics
+  - office
+  - whistleblowing
+
+softwareType: standalone/other
 
 intendedAudience:
-  - public-administrations
-  - developers
-  - security-officers
-  - archivists
-  - privacy-officers
+  scope:
+    - security
+    - science-and-technology
+    - research
+    - local-authorities
+    - government
+    - justice
+    - society
 
 description:
   en:
@@ -42,27 +50,19 @@ description:
 
 legal:
   license: MIT
-  authors:
-    - name: Anne Jan Brouwer
-      email: 'brouwer@annejan.com'
-      affiliation: 'Independent developer'
-      website: 'https://github.com/annejan'
+  mainCopyrightOwner: Anne Jan Brouwer
+  repoOwner: Anne Jan Brouwer
 
 maintenance:
-  type: internal
+  type: "community"
   contacts:
     - name: Anne Jan Brouwer
-      email: 'brouwer@annejan.com'
-      affiliation: 'Independent developer'
-      website: 'https://github.com/annejan'
-      role: developer
+      email: "brouwer@annejan.com"
 
 localisation:
   availableLanguages:
     - en
   localisationReady: false
-  translationStatus:
-    en: 100
 
 dependsOn:
   open:
@@ -74,27 +74,4 @@ dependsOn:
     - name: tqdm
 
 usedBy: []
-
-documentation:
-  readme: 'https://github.com/annejan/pdf-metadata-scanner/blob/main/README.md'
-  apiDocumentation: ''
-  technicalDocumentation: ''
-
-download:
-  repo: 'https://github.com/annejan/pdf-metadata-scanner'
-  release: 'https://github.com/annejan/pdf-metadata-scanner/releases'
-  package: 'https://pypi.org/project/pdf-metadata-scanner'
-
-compliance:
-  - standard: GDPR
-    description: >
-      Helps comply with GDPR principles of data minimization and transparency by detecting hidden metadata in documents.
-
-internationalisation:
-  policy: open
-  communityTranslation: true
-
-deployment:
-  reusable: true
-  configurationRequired: minimal
 
