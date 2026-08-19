@@ -29,7 +29,7 @@ pillow==12.3.0
 platformdirs==4.3.8
 pycparser==2.22
 Pygments==2.19.1
-pypdf==6.7.1
+pypdf==6.15.0
 pyproject_hooks==1.2.0
 readme_renderer==44.0
 requests==2.32.4
