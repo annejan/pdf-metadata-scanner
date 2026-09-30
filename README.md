@@ -29,7 +29,7 @@ pip install pdf-metadata-scanner
 Or from source:
 
 ```bash
-git clone https://github.com/yourname/pdf-metadata-scanner.git
+git clone https://github.com/annejan/pdf-metadata-scanner.git
 cd pdf-metadata-scanner
 pip install .
 ```
@@ -55,7 +55,7 @@ python scanner.py <folder> [--log LOG_FILE] [--out OUTPUT_FILE] [--verbose] [--p
 | Flag                | Shorthand | Description                                  | Default                   |
 | ------------------- | --------- | -------------------------------------------- | ------------------------- |
 | `folder`            |           | Folder to recursively scan for PDFs          | *required*                |
-| `--log LOG_FILE`    | `-l`      | Log file for warnings/errors                 | `scanner_warnings.log`    |
+| `--log LOG_FILE`    | `-l`      | Log file for warnings/errors                 | `scanner.log`             |
 | `--out OUTPUT_FILE` | `-o`      | Output file for extracted metadata           | `pdf_metadata_output.txt` |
 | `--verbose`         | `-v`      | Output logs to both file and console         | *(off)*                   |
 | `--progress`        | `-p`      | Show a live progress bar while scanning PDFs | *(off)*                   |
