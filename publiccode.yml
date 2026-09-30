@@ -4,8 +4,8 @@ name: PDF Metadata Scanner
 applicationSuite: ''
 url: 'https://github.com/annejan/pdf-metadata-scanner'
 landingURL: 'https://github.com/annejan/pdf-metadata-scanner'
-softwareVersion: '0.1.2'
-releaseDate: '2025-06-13'
+softwareVersion: '0.1.3'
+releaseDate: '2026-09-30'
 
 developmentStatus: development
 
