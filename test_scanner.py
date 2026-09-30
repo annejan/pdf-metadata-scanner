@@ -5,6 +5,7 @@ import unittest
 from io import BytesIO, StringIO
 from unittest.mock import MagicMock, patch
 
+import pikepdf
 from PIL import Image, PngImagePlugin
 
 import scanner
@@ -432,6 +433,33 @@ class TestScanner(unittest.TestCase):
         scanner.extract_image_metadata("file.pdf", out)
         # Expect no image metadata printed for non-image subtype
         self.assertEqual(out.getvalue().strip(), "")
+
+    def test_process_pdf_real_file_with_xmp(self):
+        # Unmocked: XMP must survive pikepdf closing the file
+        with tempfile.TemporaryDirectory() as tmp:
+            pdf_path = os.path.join(tmp, "xmp.pdf")
+            with pikepdf.new() as pdf:
+                pdf.add_blank_page()
+                with pdf.open_metadata() as meta:
+                    meta["dc:title"] = "Real XMP Title"
+                pdf.save(pdf_path)
+
+            out = StringIO()
+            scanner.process_pdf(pdf_path, out)
+            output = out.getvalue()
+            self.assertIn("[XMP Metadata]", output)
+            self.assertIn("[RDF Metadata]", output)
+            self.assertIn("Real XMP Title", output)
+
+    def test_extract_pdf_metadata_real_file_without_xmp(self):
+        with tempfile.TemporaryDirectory() as tmp:
+            pdf_path = os.path.join(tmp, "plain.pdf")
+            with pikepdf.new() as pdf:
+                pdf.add_blank_page()
+                pdf.save(pdf_path)
+
+            out = StringIO()
+            self.assertIsNone(scanner.extract_pdf_metadata(pdf_path, out))
 
 
 if __name__ == "__main__":

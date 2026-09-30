@@ -31,7 +31,9 @@ def extract_pdf_metadata(pdf_path, out):
                 print(f"[PDF Metadata] {pdf_path}", file=out)
                 for key, value in docinfo.items():
                     print(f"    {key}: {value}", file=out)
-            return pdf.open_metadata()
+            # Serialize while the PDF is still open; the XMP object reads as empty once closed
+            xmp = pdf.open_metadata()
+            return str(xmp) if len(xmp) else None
     except Exception as e:
         logging.warning(f"Could not extract PDF metadata from {pdf_path}: {e}")
         return None
