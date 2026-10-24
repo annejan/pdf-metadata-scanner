@@ -38,7 +38,7 @@ rfc3986==2.0.0
 rich==14.0.0
 ruff==0.11.13
 SecretStorage==3.3.3
-setuptools==84.0.0
+setuptools==84.1.0
 tqdm==4.70.1
 twine==6.1.0
 typing_extensions==4.14.0
