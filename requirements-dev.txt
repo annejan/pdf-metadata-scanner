@@ -1,4 +1,4 @@
-black==26.5.1
+black==26.10.1
 build==1.2.2.post1
 certifi==2025.4.26
 cffi==2.0.0
